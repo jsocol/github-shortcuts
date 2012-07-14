@@ -1,13 +1,18 @@
 (function() {
 
+var user;
+
 function githubUser () {
-    return github_user;
+    if (!user) {
+        var box = document.getElementById("user");
+        user = box.getElementsByClassName("name")[0].innerHTML;
+    }
+    return user;
 }
 
 var SHORTCUTS = {
         "h": "/",
         "n": "/inbox/notifications",
-        "i": "/inbox",
         "y": "/dashboard/yours",
         "p": "/dashboard/pulls",
         "r": function() {
@@ -16,15 +21,15 @@ var SHORTCUTS = {
             input.style.cssText = "display: block; position: absolute; top: 0; left: 0";
             input.addEventListener("keyup", function(e) {
                 if (e.keyCode == 13) {  // 13 = Enter
-                    if (-1 != this.value.indexOf('/')) {
+                    if (-1 != this.value.indexOf("/")) {
                         if (-1 != this.value.search(/^\//)) {
-                            window.location = this.value;
+                            window.location.href = this.value;
                         } else {
-                            window.location = "/" + this.value;
+                            window.location.href = "/" + this.value;
                         }
                     } else {
                         var path = "/" + githubUser() + "/" + this.value;
-                        window.location = path;
+                        window.location.href = path;
                     }
                 } else if (e.keyCode == 27) {  // 27 = Escape
                     this.blur();
@@ -34,6 +39,9 @@ var SHORTCUTS = {
             document.body.appendChild(input);
             input.focus();
         },
+        "?": function() {
+            var help = document.createElement("div");
+        }
     },
     ACTIVE = false;
 
@@ -48,7 +56,8 @@ document.addEventListener("keyup", function(e) {
     } else if (ACTIVE) {
         ACTIVE = false;
         if (typeof SHORTCUTS[key] == "string") {
-            window.location = SHORTCUTS[key];
+            var dest = SHORTCUTS[key];
+            window.location.href = dest;
             return false;
         } else if (typeof SHORTCUTS[key] == "function") {
             SHORTCUTS[key]();
@@ -56,4 +65,13 @@ document.addEventListener("keyup", function(e) {
         }
     }
 }, true);
+
+// Add to the global shortcuts.
+var shortcutsPane = document.getElementById("keyboard_shortcuts_pane"),
+    firstCol = shortcutsPane.getElementsByClassName("first")[0];
+firstCol.innerHTML += "<dl class='keyboard-mappings'><dt>gh</dt><dd>Go to the home page</dd></dl>" +
+                      "<dl class='keyboard-mappings'><dt>gn</dt><dd>Go to your notifications</dd></dl>" +
+                      "<dl class='keyboard-mappings'><dt>gy</dt><dd>Go to your actions</dd></dl>" +
+                      "<dl class='keyboard-mappings'><dt>gp</dt><dd>Go to your pull requests</dd></dl>" +
+                      "<dl class='keyboard-mappings'><dt>gr</dt><dd>Bring up the quick repo switch</dd></dl>";
 })();
